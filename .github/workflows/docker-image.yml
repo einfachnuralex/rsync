@@ -1,0 +1,25 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Docker Buildx
+      id: buildx
+      uses: docker/setup-buildx-action@v1
+      with:
+        version: latest
+    - name: Login to ghcr.io
+      run:  echo ${{ secrets.REG_PASSWD }} | docker login ghcr.io --username einfachnuralex --password-stdin
+    - name: Build the Docker image
+      run: docker buildx build . --file Dockerfile --output "type=image,push=true" --tag ghcr.io/einfachnuralex/rsync:main --platform linux/amd64
